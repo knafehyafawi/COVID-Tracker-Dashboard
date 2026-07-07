@@ -1,6 +1,5 @@
 # Global COVID-19 Tracker Dashboard
-## Assignment 4 - Data Visualization
-### Adnan Awad
+## Adnan Awad
 
 -------------
 ### Description
