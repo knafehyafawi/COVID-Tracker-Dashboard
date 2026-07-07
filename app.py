@@ -49,7 +49,7 @@ def get_data():
     # 2. Filter the master dataframe down to just the selected country
     country_data = df[df['country'] == selected_country].copy()
 
-    # Ensure chronological order so the Plotly line chart doesn't zig-zag backward
+    # Ensure chronological order so the Plotly line chart doesn't zigzag backward
     country_data = country_data.sort_values(by='date')
 
     # 3. Extract just the X (dates) and Y (metric values) columns into native Python lists
