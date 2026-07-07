@@ -4,7 +4,6 @@ import pandas as pd
 app = Flask(__name__)
 
 # Load the cleaned dataset once when the app starts
-# Make sure 'cleaned_covid_data.csv' is in the exact same folder as app.py
 try:
     df = pd.read_csv('cleaned_covid_data.csv')
 except FileNotFoundError:
@@ -15,7 +14,7 @@ except FileNotFoundError:
 @app.route('/')
 def index():
     """
-    Part B: Root route that renders the HTML template.
+    Root route that renders the HTML template.
     Passes the countries list and date range to the frontend.
     """
     if df.empty:
@@ -36,7 +35,7 @@ def index():
 @app.route('/data')
 def get_data():
     """
-    Part D: Event Interaction Route.
+    Event Interaction Route.
     Accepts URL parameters (e.g., /data?country=Canada&metric=new_cases)
     and returns the filtered data as JSON for Plotly to draw.
     """
@@ -67,4 +66,4 @@ def get_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
