@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global COVID-19 Tracker</title>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+    <style>
+        /* Part F: Clean HTML/CSS Layout and Responsiveness */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .header-info {
+            color: #666;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+        select {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #plot {
+            width: 100%;
+            height: 500px;
+            margin-bottom: 30px;
+        }
+        .insights {
+            background-color: #eef2f5;
+            padding: 20px;
+            border-left: 4px solid #3498db;
+            border-radius: 0 4px 4px 0;
+        }
+        .insights h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Global COVID-19 Trends</h1>
+    <div class="header-info">Data Date Range: {{ date_range }}</div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="country">Select Country:</label>
+            <select id="country">
+                {% for country in countries %}
+                    <option value="{{ country }}" {% if country == 'Canada' %}selected{% endif %}>{{ country }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label for="metric">Select Metric:</label>
+            <select id="metric">
+                <option value="new_cases">New Cases</option>
+                <option value="cases_rolling_avg">New Cases (3-Month Average)</option>
+                <option value="new_vaccinations">New Vaccinations</option>
+                <option value="vaccines_rolling_avg">New Vaccinations (3-Month Average)</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="plot"></div>
+    <p style="text-align: center; font-size: 0.9em; color: #777;"><em>Hover over the line to see exact dates and numbers.</em></p>
+
+    <div class="insights">
+        <h3>Data Insights & Design Rationale</h3>
+        <p><strong>Trends & Caveats:</strong> When switching between 'New Cases' and 'New Vaccinations', you may notice inverse trends in certain periods (e.g., cases dropping as vaccinations rise). However, it is crucial to remember that <em>correlation does not equal causation</em>. Drops in cases can also be heavily influenced by lockdowns, seasonality, or reporting fatigue.</p>
+        <p><strong>Design Choices:</strong></p>
+        <ul>
+            <li><strong>Handling Outliers:</strong> To prevent extreme data spikes (often caused by backlogged administrative reporting) from squashing the rest of the visual data, values were capped at the 99th percentile during the data cleaning phase.</li>
+            <li><strong>Rolling Averages:</strong> Because daily/monthly health data is inherently noisy, I included 3-month rolling average options in the metric toggle. This smooths out reporting artifacts and allows users to see the true underlying trend.</li>
+            <li><strong>Color & Layout:</strong> The interface uses a clean, high-contrast palette to ensure accessibility. The line chart defaults to a crisp blue (`#3498db`), avoiding reds and greens which can cause issues for colorblind users.</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Part D: Event Interaction (Fetch API)
+    const countrySelect = document.getElementById('country');
+    const metricSelect = document.getElementById('metric');
+
+    // Function to fetch data from Flask and update the chart
+    async function updateChart() {
+        const country = countrySelect.value;
+        const metric = metricSelect.value;
+
+        // Fetch JSON data without reloading the page
+        const response = await fetch(`/data?country=${country}&metric=${metric}`);
+        const data = await response.json();
+
+        // Format labels for the chart title
+        const metricLabels = {
+            'new_cases': 'Reported New Cases',
+            'cases_rolling_avg': 'New Cases (3-Month Rolling Average)',
+            'new_vaccinations': 'Reported New Vaccinations',
+            'vaccines_rolling_avg': 'New Vaccinations (3-Month Rolling Average)'
+        };
+
+        // Create the Plotly trace
+        const trace = {
+            x: data.dates,
+            y: data.values,
+            type: 'scatter',
+            mode: 'lines',
+            line: {
+                color: '#3498db',
+                width: 3,
+                shape: 'spline' // Makes the line slightly smoothed rather than rigidly jagged
+            },
+            fill: 'tozeroy', // Fills the area under the line slightly
+            fillcolor: 'rgba(52, 152, 219, 0.1)'
+        };
+
+        // Configure the layout
+        const layout = {
+            title: {
+                text: `${metricLabels[metric]} in ${country}`,
+                font: { size: 24, family: 'Segoe UI, sans-serif' }
+            },
+            xaxis: { title: 'Date', showgrid: false },
+            yaxis: { title: 'Count', rangemode: 'tozero' },
+            margin: { t: 60, b: 50, l: 60, r: 20 },
+            hovermode: 'x unified' // Shows a nice vertical line across all traces when hovering
+        };
+
+        // Draw or redraw the plot!
+        Plotly.react('plot', [trace], layout);
+    }
+
+    // Add event listeners to the dropdowns
+    countrySelect.addEventListener('change', updateChart);
+    metricSelect.addEventListener('change', updateChart);
+
+    // Initial load of the chart when the page first opens
+    updateChart();
+</script>
+
+</body>
+</html>
