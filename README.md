@@ -1,6 +1,5 @@
 # Global COVID-19 Tracker Dashboard
 ## Adnan Awad
-
 -------------
 ### Description
 This is an interactive web dashboard built with Flask and Plotly that visualizes COVID-19 trends. It allows users to filter data by country and toggle between different metrics (like daily cases and rolling averages) without reloading the page.
