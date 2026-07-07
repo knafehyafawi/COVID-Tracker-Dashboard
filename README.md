@@ -32,4 +32,4 @@ If you are running this project from within an IDE like PyCharm:
 - templates/index.html : The frontend HTML/JS file containing the Plotly logic and styling.
 
 ### Video Demo:
-Inside the folder there is a file named VideoDemo.mp4. If that doesn't work, see the following YouTube link: https://youtu.be/vIh3TmV7UtE
+See the following YouTube link: https://youtu.be/vIh3TmV7UtE
